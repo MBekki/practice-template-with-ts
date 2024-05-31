@@ -3,34 +3,16 @@ import { ProductType } from '../../interfaces';
 import { IoEyeOutline } from 'react-icons/io5';
 import { FaRegStar } from 'react-icons/fa';
 import { HiOutlineShoppingBag } from 'react-icons/hi2';
-import axios from 'axios';
+// import axios from 'axios';
 import Button from '../Button';
+import { useAppDispatch } from '../../redux/hooks';
+import { addCart } from '../../redux/cartReducer/cartSlice';
 
 const ProductCard: FC<ProductType> = props => {
-    const handleClick = async (id: number) => {
-        const products: ProductType[] =
-            JSON.parse(localStorage.getItem('carts') as string) || [];
+    const dispatch = useAppDispatch();
 
-        const res = await axios.get(`https://fakestoreapi.com/products/${id}`);
-        const product = res.data;
-
-        const isExistProduct = products.find(elem => elem.id === product.id);
-
-        if (isExistProduct) {
-            const updateData = products.map(item => {
-                if (item.id === product.id) {
-                    return {
-                        ...item,
-                        quantity: item.quantity + 1,
-                    };
-                }
-                return item;
-            });
-            localStorage.setItem('carts', JSON.stringify(updateData));
-        } else {
-            const data = [...products, { ...product, quantity: 1 }];
-            localStorage.setItem('carts', JSON.stringify(data));
-        }
+    const handleClick = (item: ProductType): void => {
+        dispatch(addCart(item));
     };
     return (
         <div className='p-4 '>
@@ -56,11 +38,13 @@ const ProductCard: FC<ProductType> = props => {
                                 <span>
                                     <IoEyeOutline />
                                 </span>
-                                {props.rating.count}
+                                <span>{props.rating.count}</span>
                             </span>
                             <span className='text-gray-400 inline-flex items-center leading-none text-sm'>
-                                <FaRegStar />
-                                {props.rating.rate}
+                                <span>
+                                    <FaRegStar />
+                                </span>
+                                <span>{props.rating.rate}</span>
                             </span>
                         </div>
                         <div className='font-bold'>${props.price}</div>
@@ -74,7 +58,7 @@ const ProductCard: FC<ProductType> = props => {
                             bgColor='#4BB543'
                             color='white'
                             fontSize={22}
-                            onClick={() => handleClick(props.id)}
+                            onClick={() => handleClick(props)}
                         />
                     </div>
                 </div>
